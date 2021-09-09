@@ -62,11 +62,17 @@ public class GrilleListener implements MouseListener {
 	* @param e Informations sur l'évenement (non utilisé ici)
 	*/
 	public void mouseReleased(MouseEvent e) {
+
 		Grille gr = this.grille;
+		System.out.println();
+		gr.printGridBool();
 		gr.addPoints();
 		gr.removeSelected();
 		gr.checkFall();
 		gr.checkColumns();
+		gr.printGrid();
+		System.out.println("--------------------------");
+
 		if (gr.remainingGroups() == 0) {
 			this.modal.locX = this.grille.fenetre.getLocation().x;
 			this.modal.locY = this.grille.fenetre.getLocation().y;

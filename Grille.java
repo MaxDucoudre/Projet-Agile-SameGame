@@ -91,6 +91,37 @@ public class Grille {
     }
 
     
+    public void printGridBool() {
+    	for(int i = 0; i <ligne;i++) {
+    		for(int j = 0; j<colonne;j++) {
+    			if(selected[i][j] == false) {
+    		System.out.print("F");
+
+    			} else {
+    		System.out.print("T");
+
+    			}
+
+    		}
+			System.out.println("");
+
+    	} 
+			System.out.println("");
+
+    }
+
+   public void printGrid() {
+        for(int i = 0; i <ligne;i++) {
+            for(int j = 0; j<colonne;j++) {
+            System.out.print(tab_char[i][j]);
+
+            }
+            System.out.println("");
+
+        } 
+            System.out.println("");
+
+    }
 
     /**
     * Permet de mettre les images sur chaque case
