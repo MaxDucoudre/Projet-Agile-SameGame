@@ -54,7 +54,7 @@ public class Parametres extends JFrame{
 
 
 
-        button[4] = new JButton("Bot");
+        button[4] = new JButton("Bot Aléatoire");
         button[4].setBounds(375,450,150,50);
         button[4].setBackground(new Color(123,27,91));
 
@@ -74,8 +74,9 @@ public class Parametres extends JFrame{
 
         for (int i = 0; i<8; i++) {
             jpan.add(button[i]);
-          button[i].addActionListener(new ParamListener(this, this.button));
+            button[i].addActionListener(new ParamListener(this, this.button));
         }
+        
         this.add(jpan);
 
         this.pack();

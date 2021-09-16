@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class Grille {
     private int ligne = 10;
     private int colonne = 15;
-    private boolean[][] selected = new boolean[ligne][colonne];
+    public boolean[][] selected = new boolean[ligne][colonne];
     public char[][] tab_char = new char[ligne][colonne];
     public JLabel[][] label = new JLabel[ligne][colonne];
 
@@ -58,7 +58,11 @@ public class Grille {
                 this.label[i][j] = new JLabel();
                 this.label[i][j].setBackground(new Color(255, 0, 189)); 
                 this.label[i][j].setOpaque(false);
-                this.label[i][j].addMouseListener(new GrilleListener(this));
+
+                if (this.modal.gametype == 0) { // Pas de MouseListener si la partie est lancée via un bot
+                    this.label[i][j].addMouseListener(new GrilleListener(this));
+                }
+
                 this.jpan.add(this.label[i][j]);
 
                 // Condition couleur rouge
@@ -88,40 +92,15 @@ public class Grille {
         }
 
         this.refresh();
+
+        // si la partie est lancée avec un vot
+        if (this.modal.gametype > 0) {
+            System.out.println("Bot lancé");
+            Thread thread_bot = new Thread(new ThreadBot(new InterfaceIA(this), this.modal.gametype));
+            thread_bot.start();
+        }
     }
 
-    
-    public void printGridBool() {
-    	for(int i = 0; i <ligne;i++) {
-    		for(int j = 0; j<colonne;j++) {
-    			if(selected[i][j] == false) {
-    		System.out.print("F");
-
-    			} else {
-    		System.out.print("T");
-
-    			}
-
-    		}
-			System.out.println("");
-
-    	} 
-			System.out.println("");
-
-    }
-
-   public void printGrid() {
-        for(int i = 0; i <ligne;i++) {
-            for(int j = 0; j<colonne;j++) {
-            System.out.print(tab_char[i][j]);
-
-            }
-            System.out.println("");
-
-        } 
-            System.out.println("");
-
-    }
 
     /**
     * Permet de mettre les images sur chaque case
@@ -391,4 +370,57 @@ public class Grille {
         this.unselectAll();
         return nbgroups;
     }
+
+
+
+//
+
+
+    public char[][] getTabChar() {
+        return this.tab_char;
+    }
+    public int getLigne() {
+        return this.ligne;
+    }
+    public int getColonne() {
+        return this.colonne;
+    }
+
+    public void printGridBool() {
+        for(int i = 0; i <ligne;i++) {
+            for(int j = 0; j<colonne;j++) {
+                if(selected[i][j] == false) {
+                    System.out.print("F");
+
+                } else {
+                    System.out.print("T");
+
+                }
+
+            }
+            System.out.println("");
+
+        } 
+        System.out.println("");
+
+    }
+
+    public void printGrid() {
+        for(int i = 0; i <ligne;i++) {
+            for(int j = 0; j<colonne;j++) {
+                System.out.print(tab_char[i][j]);
+
+            }
+            System.out.println("");
+
+        } 
+        System.out.println("");
+
+    }
+
+
+
+
+
+
 }

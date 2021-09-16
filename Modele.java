@@ -1,10 +1,12 @@
-/**
+	/**
 * Cette classe Modele permet de garder en mémoire des données tout au long du programme
 * @author Paul LE CORRE & Brice PANIZZI
 */
 public class Modele {
 	int locX = 100;
 	int locY = 100;
+	public int gametype = 0;
+
 	boolean importGrid = false;
 	char[][] gridChar = new char[10][15];
 

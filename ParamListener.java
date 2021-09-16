@@ -10,13 +10,19 @@ public class ParamListener implements ActionListener {
 	Parametres parametres;
 	Modele modal;
 	JButton[] button;
+	
+
 	public ParamListener(Parametres parametres, JButton[] button) {
 		this.parametres = parametres;
 		this.modal = parametres.modal;
 		this.button = button;
 	}
 
+
+
 	public void actionPerformed(ActionEvent e){
+
+
 		if(e.getSource() == this.button[0]){
 			this.modal.locX = this.parametres.getLocation().x;
 			this.modal.locY = this.parametres.getLocation().y;
@@ -28,9 +34,8 @@ public class ParamListener implements ActionListener {
 			this.modal.importGrid = false;
 			this.button[1].setBackground(Color.YELLOW);
 			this.button[2].setBackground(new Color(123,27,91));
-
-
 		}
+
 		else if (e.getSource() == this.button[2]){
 			GridFile filechooser = new GridFile(this.parametres);
             if (filechooser.isOk()) {
@@ -51,7 +56,10 @@ public class ParamListener implements ActionListener {
 			this.modal.locX = this.parametres.getLocation().x;
 			this.modal.locY = this.parametres.getLocation().y;
 			this.parametres.dispose();
-			Jeu game = new Jeu(this.modal);
+			System.out.println("Type validé : " + this.modal.gametype);
+
+
+			Jeu game = new Jeu(this.modal); // lance la partie
 		}
 
 		//Action souris sur Bot
@@ -63,8 +71,9 @@ public class ParamListener implements ActionListener {
 			this.button[5].setBackground(new Color(123,27,91));
 			this.button[6].setBackground(new Color(123,27,91));
 			this.button[7].setBackground(new Color(123,27,91));
+			this.modal.gametype = 1; // bot aléatoire
 
-			
+
 		}
 		
 		else if (e.getSource() == this.button[5]){
@@ -74,7 +83,8 @@ public class ParamListener implements ActionListener {
 			this.button[6].setBackground(new Color(123,27,91));
 			this.button[4].setBackground(new Color(123,27,91));
 			this.button[7].setBackground(new Color(123,27,91));
-;
+			this.modal.gametype = 2; // Bot Glouton
+
 		}
 		
 		else if (e.getSource() == this.button[6]){
@@ -84,8 +94,11 @@ public class ParamListener implements ActionListener {
 			this.button[4].setBackground(new Color(123,27,91));
 			this.button[5].setBackground(new Color(123,27,91));
 			this.button[7].setBackground(new Color(123,27,91));
+			this.modal.gametype = 3; // bot amélioré
+
 
 		}
+
 		else if (e.getSource() == this.button[7]){
 			this.modal.locX = this.parametres.getLocation().x;
 			this.modal.locY = this.parametres.getLocation().y;
@@ -93,6 +106,7 @@ public class ParamListener implements ActionListener {
 			this.button[5].setBackground(new Color(123,27,91));
 			this.button[6].setBackground(new Color(123,27,91));
 			this.button[4].setBackground(new Color(123,27,91));
+			this.modal.gametype = 0; // sans bot
 
 		}
 	}
