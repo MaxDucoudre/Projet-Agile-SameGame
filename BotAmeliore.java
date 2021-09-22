@@ -3,7 +3,6 @@ import java.util.Random;
 public class BotAmeliore extends Bot {
 
 	private int coordX, coordY;
-	private InterfaceIA interfaceIA;
 	private char[][] char_tab;
 	private boolean[][] selected;
 
@@ -65,8 +64,8 @@ public class BotAmeliore extends Bot {
 		int nbgroups = 0;
 		for (int l = 0; l<10; l++) {
 			for (int c = 0; c<15; c++) {
-				if (!this.interfaceIA.grille.selected[l][c]) {
-					if (this.interfaceIA.grille.select(l, c)) {
+				if (!this.selected[l][c]) {
+					if (this.select(l, c)) {
 						if(char_tab[l][c] == car) {
 							nbgroups++;
 						}
@@ -74,7 +73,7 @@ public class BotAmeliore extends Bot {
 				}
 			}
 		}
-		this.interfaceIA.grille.unselectAll();
+		this.unselectAll();
 		return nbgroups;
 	}
 
@@ -90,7 +89,7 @@ public class BotAmeliore extends Bot {
 			super.coordX = (int)Math.floor(Math.random()*(maxX-minX+1)+minX);
 
 
-			int maxY = this.interfaceIA.getColonne()-1;
+			int maxY = this.getCol()-1;
 			int minY = 0;
 			Random randomY = new Random();
 			super.coordY = (int)Math.floor(Math.random()*(maxY-minY+1)+minY);
@@ -234,6 +233,13 @@ public class BotAmeliore extends Bot {
             if (!this.selected[l][c+1] && this.char_tab[l][c] == this.char_tab[l][c+1]) {
                 selected[l][c+1] = true;
                 selectAdjacents(l, c+1);
+            }
+        }
+    }
+    public void unselectAll() {
+        for (int l = 0; l<10; l++) {
+            for (int c = 0; c<15; c++) {
+                this.selected[l][c] = false;
             }
         }
     }

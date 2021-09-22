@@ -96,7 +96,7 @@ public class Grille implements API{
         // si la partie est lancée avec un vot
         if (this.modal.gametype > 0) {
             System.out.println("Bot lancé");
-            Thread thread_bot = new Thread(new ThreadBot(new InterfaceIA(this), this.modal.gametype, this));
+            Thread thread_bot = new Thread(new ThreadBot( this.modal.gametype, this));
             thread_bot.start();
         }
     }
