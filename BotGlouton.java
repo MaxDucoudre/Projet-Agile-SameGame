@@ -3,30 +3,29 @@ import java.util.Random;
 public class BotGlouton extends Bot {
 
 	private int counter;
-	private int coordX, coordY;
 
 	private boolean[][] selected;
 
 	private Grille grille;
 	
-	public BotGlouton(String bot_name, InterfaceIA interfaceIA) {
-		super(bot_name, interfaceIA);
-		this.grille = interfaceIA.grille;
-		this.selected = new boolean[this.grille.getLigne()][this.grille.getColonne()];
-		// nom du bot : super.bot_name
-		interfaceIA.startBot(this);
+
+
+	public BotGlouton(String bot_name) {
+		super(bot_name);
+
 	}
 
 
 	public void setBiggestGroupCoord() {
+		this.selected = new boolean[this.getLine()][this.getCol()];
 
 		int[][] tab_group = this.allGroupSize();
 
-		for(int i = 0; i < this.grille.getLigne(); i++) {
-			for(int j = 0; j < this.grille.getColonne(); j++) {
+		for(int i = 0; i < this.getLine(); i++) {
+			for(int j = 0; j < this.getCol(); j++) {
 				if (tab_group[i][j] == this.getMaxValue(tab_group)) {
-					this.coordX = i;
-					this.coordY = j;
+					super.coordX = i;
+					super.coordY = j;
 					this.unselectAll();
 					return;
 				}
@@ -50,9 +49,9 @@ public class BotGlouton extends Bot {
 	}
 
 	public int[][] allGroupSize() {
-		int[][] groupSize = new int[this.grille.getLigne()][this.grille.getColonne()];
-		for(int i = 0; i < this.grille.getLigne(); i++) {
-			for(int j = 0; j < this.grille.getColonne(); j++) {
+		int[][] groupSize = new int[this.getLine()][this.getCol()];
+		for(int i = 0; i < this.getLine(); i++) {
+			for(int j = 0; j < this.getCol(); j++) {
 
 				if(this.verifCase(i,j) == false ) {
 					groupSize[i][j] = 0;
@@ -73,8 +72,8 @@ public class BotGlouton extends Bot {
 
 	public void printAllGroupSize() {
 		int[][] groupSize = this.allGroupSize();
-		for(int i = 0; i < this.grille.getLigne(); i++) {
-			for(int j = 0; j < this.grille.getColonne(); j++) {
+		for(int i = 0; i < this.getLine(); i++) {
+			for(int j = 0; j < this.getCol(); j++) {
 				System.out.print(groupSize[i][j] + "  ");
 			}
 			System.out.println();
@@ -84,13 +83,15 @@ public class BotGlouton extends Bot {
 
 
 	public boolean findGroupSize(int l, int c) {
+			char[][] tab_char = super.interfaceMJ.getGrille();
 
-		if(this.grille.tab_char[l][c] == ' ') {
+
+		if(tab_char[l][c] == ' ') {
             return false; // Dans le cas ou la case est vide
         }
         // HAUT
         if (l>0) {
-        	if (!this.selected[l-1][c] && this.grille.tab_char[l][c] == this.grille.tab_char[l-1][c]) {
+        	if (!this.selected[l-1][c] && tab_char[l][c] == tab_char[l-1][c]) {
         		selected[l-1][c] = true;
         		findGroupSize(l-1, c);
         	}
@@ -98,7 +99,7 @@ public class BotGlouton extends Bot {
 
         // BAS
         if (l<9) {
-        	if (!this.selected[l+1][c] && this.grille.tab_char[l][c] == this.grille.tab_char[l+1][c]) {
+        	if (!this.selected[l+1][c] && tab_char[l][c] == tab_char[l+1][c]) {
         		selected[l+1][c] = true;
         		findGroupSize(l+1, c);
         	}
@@ -106,7 +107,7 @@ public class BotGlouton extends Bot {
 
         // GAUCHE
         if (c>0) {
-        	if (!this.selected[l][c-1] && this.grille.tab_char[l][c] == this.grille.tab_char[l][c-1]) {
+        	if (!this.selected[l][c-1] && tab_char[l][c] == tab_char[l][c-1]) {
         		selected[l][c-1] = true;
         		findGroupSize(l, c-1);
         	}
@@ -114,7 +115,7 @@ public class BotGlouton extends Bot {
 
         // DROITE
         if (c<14) {
-        	if (!this.selected[l][c+1] && this.grille.tab_char[l][c] == this.grille.tab_char[l][c+1]) {
+        	if (!this.selected[l][c+1] && tab_char[l][c] == tab_char[l][c+1]) {
         		selected[l][c+1] = true;
         		findGroupSize(l, c+1);
         	}
@@ -133,14 +134,13 @@ public class BotGlouton extends Bot {
         	}
         }
 
-        public int genererCoordX() {
+        public void genererCoordX() {
         	this.setBiggestGroupCoord();
-        	return this.coordX;
         }
 
-        public int genererCoordY() {
+        public void genererCoordY() {
+        	this.setBiggestGroupCoord();
 
-        	return this.coordY;
         }
 
     }

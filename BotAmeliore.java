@@ -5,12 +5,11 @@ public class BotAmeliore extends Bot {
 	private int coordX, coordY;
 	private InterfaceIA interfaceIA;
 	private char[][] char_tab;
+	private boolean[][] selected;
 
-	public BotAmeliore(String bot_name, InterfaceIA interfaceIA) {
-		super(bot_name, interfaceIA);
-		this.interfaceIA = interfaceIA;
-		this.char_tab = this.interfaceIA.getTabChar();
-		this.interfaceIA.startBot(this);
+	public BotAmeliore(String bot_name) {
+		super(bot_name);
+
 
 	}
 
@@ -21,8 +20,8 @@ public class BotAmeliore extends Bot {
 		int blue = 0;
 		int max;
 		
-		for(i = 0; i < this.interfaceIA.getLigne(); i++) {
-			for(j = 0; j< this.interfaceIA.getColonne(); j++) {
+		for(i = 0; i < this.getLine(); i++) {
+			for(j = 0; j< this.getCol(); j++) {
 				if(char_tab[i][j] == 'R') {
 					red++;
 				} else if(char_tab[i][j] == 'B') {
@@ -81,20 +80,22 @@ public class BotAmeliore extends Bot {
 
 
 	public void genererCoord() {
+		this.char_tab = this.interfaceMJ.getGrille(); 
+		this.selected = new boolean[this.getLine()][this.getCol()];
 
 		do {
-			int maxX = this.interfaceIA.getLigne()-1;
+			int maxX = this.getLine()-1;
 			int minX = 0;
 			Random randomX = new Random();
-			this.coordX = (int)Math.floor(Math.random()*(maxX-minX+1)+minX);
+			super.coordX = (int)Math.floor(Math.random()*(maxX-minX+1)+minX);
 
 
 			int maxY = this.interfaceIA.getColonne()-1;
 			int minY = 0;
 			Random randomY = new Random();
-			this.coordY = (int)Math.floor(Math.random()*(maxY-minY+1)+minY);
+			super.coordY = (int)Math.floor(Math.random()*(maxY-minY+1)+minY);
 			
-		} while(this.validateCoord(this.coordX, this.coordY) == false);
+		} while(this.validateCoord(super.coordX, super.coordY) == false);
 
 	}
 
@@ -135,16 +136,106 @@ public class BotAmeliore extends Bot {
 		return true;
 
 	}
-
-	public int genererCoordX() {
+@Override
+	public void genererCoordX() {
 		this.genererCoord();
+		
+	}
+@Override
 
-		return coordX;
+	public void genererCoordY() {
+
 	}
 
-	public int genererCoordY() {
 
-		return coordY;
-	}
+
+
+
+    /**
+    * Permet de selectionner le bloc en question si il n'est pas vide et que son groupe fait plus de 1, puis selectionne ensuite les blocs adjacents
+    * @return true si la case en question n'est pas vide et fait partie d'un groupe sinon return false
+    */
+    public boolean select(int l, int c) {
+        int counter = 0;
+        if(this.char_tab[l][c] == ' ') {
+            return false; // Dans le cas ou la case est vide
+        }
+        // HAUT
+        if (l>0) {
+            if (!this.selected[l-1][c] && this.char_tab[l][c] == this.char_tab[l-1][c]) {
+                selected[l-1][c] = true;
+                counter++;
+                selectAdjacents(l-1, c);
+            }
+        }
+
+        // BAS
+        if (l<9) {
+            if (!this.selected[l+1][c] && this.char_tab[l][c] == this.char_tab[l+1][c]) {
+                selected[l+1][c] = true;
+                counter++;
+                selectAdjacents(l+1, c);
+            }
+        }
+
+        // GAUCHE
+        if (c>0) {
+            if (!this.selected[l][c-1] && this.char_tab[l][c] == this.char_tab[l][c-1]) {
+                selected[l][c-1] = true;
+                counter++;
+                selectAdjacents(l, c-1);
+            }
+        }
+
+        // DROITE
+        if (c<14) {
+            if (!this.selected[l][c+1] && this.char_tab[l][c] == this.char_tab[l][c+1]) {
+                selected[l][c+1] = true;
+                counter++;
+                selectAdjacents(l, c+1);
+            }
+        }
+        if (counter>0) {
+            return true; // Dans le cas ou le groupe fait plus de 1 bloc
+        } else {
+            return false; // Dans le cas ou le groupe fait 1 bloc
+        }
+    }
+
+
+    /**
+    * Méthode récursive permetant de selectionner tous les blocs du même groupe que 
+    * celui en coordonnées (l,c)
+    */
+    public void selectAdjacents(int l, int c) {
+        // HAUT
+        if (l>0) {
+            if (!this.selected[l-1][c] && this.char_tab[l][c] == this.char_tab[l-1][c]) {
+                selected[l-1][c] = true;
+                selectAdjacents(l-1, c);
+            }
+        }
+        // BAS
+        if (l<9) {
+            if (!this.selected[l+1][c] && this.char_tab[l][c] == this.char_tab[l+1][c]) {
+                selected[l+1][c] = true;
+                selectAdjacents(l+1, c);
+            }
+        }
+        // GAUCHE
+        if (c>0) {
+            if (!this.selected[l][c-1] && this.char_tab[l][c] == this.char_tab[l][c-1]) {
+                selected[l][c-1] = true;
+                selectAdjacents(l, c-1);
+            }
+        }
+        // DROITE
+        if (c<14) {
+            if (!this.selected[l][c+1] && this.char_tab[l][c] == this.char_tab[l][c+1]) {
+                selected[l][c+1] = true;
+                selectAdjacents(l, c+1);
+            }
+        }
+    }
 
 }

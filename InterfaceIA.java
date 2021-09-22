@@ -10,8 +10,6 @@ public class InterfaceIA {
 
 	}
 
-
-
 	
 	public void selectPoint(int l, int c) {
 

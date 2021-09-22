@@ -8,7 +8,7 @@ import java.util.Arrays;
 * tout le jeu
 * @author Paul LE CORRE & Brice PANIZZI
 */
-public class Grille {
+public class Grille implements API{
     private int ligne = 10;
     private int colonne = 15;
     public boolean[][] selected = new boolean[ligne][colonne];
@@ -96,7 +96,7 @@ public class Grille {
         // si la partie est lancée avec un vot
         if (this.modal.gametype > 0) {
             System.out.println("Bot lancé");
-            Thread thread_bot = new Thread(new ThreadBot(new InterfaceIA(this), this.modal.gametype));
+            Thread thread_bot = new Thread(new ThreadBot(new InterfaceIA(this), this.modal.gametype, this));
             thread_bot.start();
         }
     }
@@ -418,9 +418,54 @@ public class Grille {
 
     }
 
+    /* Implements de l'API */
+
+    public char[][] getGrille() {
+        return this.tab_char;
+    }
+
+    public void selectGroup(int x, int y) {
+        this.select(x, y);
+    }
+
+    public void destroyGroup() {
+
+        this.addPoints();
+        this.removeSelected();
+        this.checkFall();
+        this.checkColumns();
+        this.unselectAll();
+
+    }
 
 
+    public int getScore() {
+        int bsel = 0;
+        for (int l = 0; l<10; l++) {
+            for (int c = 0; c<15; c++) {
+                if (this.selected[l][c]) {
+                    bsel++;
+                }
+            }
+        }
+        if (bsel>1) {
+            return (bsel-2)*(bsel-2);
+        } else {
+            return 0;
+        }
+    }
 
+    public int getTotalScore() {
+        return this.nbpoints;
+    }
 
+    public boolean getFini() {
+        if(this.remainingGroups() == 0) {
+            return true;
+        } else {
+            return false;
+        }
+     }
 
 }
+
