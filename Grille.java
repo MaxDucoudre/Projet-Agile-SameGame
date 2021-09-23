@@ -9,96 +9,122 @@ import java.util.Arrays;
 * @author Paul LE CORRE & Brice PANIZZI
 */
 public class Grille implements API{
-    private int ligne = 10;
-    private int colonne = 15;
-    public boolean[][] selected = new boolean[ligne][colonne];
-    public char[][] tab_char = new char[ligne][colonne];
-    public JLabel[][] label = new JLabel[ligne][colonne];
+	private int ligne = 10;
+	private int colonne = 15;
+	public boolean[][] selected = new boolean[ligne][colonne];
+	public char[][] tab_char = new char[ligne][colonne];
+	public JLabel[][] label = new JLabel[ligne][colonne];
 
-    public JLabel printpoints = new JLabel("0");
-    private int nbpoints = 0;
-    public JPanelImage jpan;
+	public JLabel printpoints = new JLabel("0");
+	private int nbpoints = 0;
+	public JPanelImage jpan;
 
-    public Jeu fenetre;
-    public Modele modal;
-    
+	public Jeu fenetre;
+	public Modele modal;
+	public int turn = 0;
+	public int maxturn = 0;
+	private Variantes variantes;
+
     /**
     * Creation de la grille
     * @param fenetre la fenetre dans laquelle le JLabelImage qui contient la grille devra apparaitre
     */
     public Grille(Jeu fenetre){
-        this.modal = fenetre.modal;
-        this.fenetre = fenetre;
+    	this.modal = fenetre.modal;
+    	this.fenetre = fenetre;
+
 
         // Initialisation des variables pour l'aléatoire
-        int max = 2;
-        int min = 0;
-        int range = max - min + 1;
-        Random random = new Random();
+     int max = 2;
+     int min = 0;
+     int range = max - min + 1;
+     Random random = new Random();
 
         // Creation du JPanelImage
-        Image image = Toolkit.getDefaultToolkit().getImage("blocs/en_jeu.gif");
-        this.jpan = new JPanelImage(image);
-        this.jpan.setPreferredSize(new Dimension(1160, 653));
-        this.jpan.setOpaque(false);
-        GridLayout grille = new GridLayout(ligne,colonne);
-        this.jpan.setLayout(grille);
-        
+     Image image = Toolkit.getDefaultToolkit().getImage("blocs/en_jeu.gif");
+
+     this.jpan = new JPanelImage(image);
+     this.jpan.setPreferredSize(new Dimension(1160, 653));
+     this.jpan.setOpaque(false);
+     GridLayout grille = new GridLayout(ligne,colonne);
+     this.jpan.setLayout(grille);
+
         // Lancement du gif
-        Thread thread = new Thread( new AutoRepaint(fenetre));
-        thread.start();
+     Thread thread = new Thread( new AutoRepaint(fenetre));
+     thread.start();
 
         // Création de la grille, avec des couleurs allouées aléatoirement 
-        int choix;
-        for(int i=0; i<ligne; i++){
-            for(int j = 0; j<colonne; j++) {
+     int choix;
+     for(int i=0; i<ligne; i++){
+      for(int j = 0; j<colonne; j++) {
 
-                choix = (int)(Math.random() * range) + min;
+       choix = (int)(Math.random() * range) + min;
 
-                this.label[i][j] = new JLabel();
-                this.label[i][j].setBackground(new Color(255, 0, 189)); 
-                this.label[i][j].setOpaque(false);
+       this.label[i][j] = new JLabel();
+       this.label[i][j].setBackground(new Color(255, 0, 189)); 
+       this.label[i][j].setOpaque(false);
 
                 if (this.modal.gametype == 0) { // Pas de MouseListener si la partie est lancée via un bot
-                    this.label[i][j].addMouseListener(new GrilleListener(this));
+                	this.label[i][j].addMouseListener(new GrilleListener(this));
                 }
 
                 this.jpan.add(this.label[i][j]);
 
                 // Condition couleur rouge
                 if (choix == 0) {
-                    this.tab_char[i][j] = 'R';
+                	this.tab_char[i][j] = 'R';
                 }
                 // Condition couleur vert
                 if (choix == 1) {
-                    this.tab_char[i][j] = 'V';
+                	this.tab_char[i][j] = 'V';
                 }
 
                 // Condition couleur bleu
                 if (choix == 2) {
-                    this.tab_char[i][j] = 'B';
+                	this.tab_char[i][j] = 'B';
                 }
             }
         }
 
         // Si une grille doit être importée, remplacer tab_char par cette dernière
         if (this.modal.importGrid) {
-            this.tab_char = this.modal.getGrid();
+        	this.tab_char = this.modal.getGrid();
         }
 
         // Remplissage du tableau selected
         for (int i = 0; i<10;i++) {
-            Arrays.fill(this.selected[i], false);
+        	Arrays.fill(this.selected[i], false);
         }
 
         this.refresh();
 
-        // si la partie est lancée avec un vot
+        // si la partie est lancée avec un bot
         if (this.modal.gametype > 0) {
-            System.out.println("Bot lancé");
-            Thread thread_bot = new Thread(new ThreadBot( this.modal.gametype, this));
-            thread_bot.start();
+        	System.out.println("Bot lancé");
+        	Thread thread_bot = new Thread(new ThreadBot(this.modal.gametype, this));
+        	thread_bot.start();
         }
+
+        if (this.modal.gametype == 0) { // si la partie est sans bot
+        	/*
+        	Thread thread_bot = new Thread(new ThreadBotVariante(this));
+        	thread_bot.start();
+        	Bot[] bots = thread_bot.getBot();
+			*/
+        	Bot[] bots = new Bot[3];
+        	bots[0] = new BotAleatoire("Bot Aléatoire");
+        	bots[1] = new BotGlouton("Bot Glouton");
+        	bots[2] = new BotAmeliore("ame");
+        	bots[0].setAPI(this);
+        	bots[1].setAPI(this);
+        	bots[2].setAPI(this);
+
+	        this.variantes = new Variantes(this, this.modal, this.fenetre, bots); // Ajout gestion de partie
+
+
+
+	    }
+
     }
 
 
@@ -107,29 +133,29 @@ public class Grille implements API{
     * en fonction du tableau de caractères tab_char
     */
     public void refresh() {
-        ImageIcon rouge = new ImageIcon("blocs/rouge.png");
-        ImageIcon vert = new ImageIcon("blocs/vert.png");
-        ImageIcon bleu = new ImageIcon("blocs/bleu.png");
-        for(int i=0; i<ligne; i++){
-            for(int j = 0; j<colonne; j++) {
+    	ImageIcon rouge = new ImageIcon("blocs/rouge.png");
+    	ImageIcon vert = new ImageIcon("blocs/vert.png");
+    	ImageIcon bleu = new ImageIcon("blocs/bleu.png");
+    	for(int i=0; i<ligne; i++){
+    		for(int j = 0; j<colonne; j++) {
                 //Condition couleur rouge
-                if (this.tab_char[i][j] == 'R') {
-                    this.label[i][j].setIcon(rouge);
-                }
+    			if (this.tab_char[i][j] == 'R') {
+    				this.label[i][j].setIcon(rouge);
+    			}
                 //Condition couleur verte
-                else if (this.tab_char[i][j] == 'V') {
-                    this.label[i][j].setIcon(vert);
-                }
+    			else if (this.tab_char[i][j] == 'V') {
+    				this.label[i][j].setIcon(vert);
+    			}
 
                 //Condition couleur bleu
-                else if (this.tab_char[i][j] == 'B') {
-                    this.label[i][j].setIcon(bleu);
-                }
-                else if (this.tab_char[i][j] == ' ') {
-                    this.label[i][j].setIcon(null);
-                }
-            }
-        }
+    			else if (this.tab_char[i][j] == 'B') {
+    				this.label[i][j].setIcon(bleu);
+    			}
+    			else if (this.tab_char[i][j] == ' ') {
+    				this.label[i][j].setIcon(null);
+    			}
+    		}
+    	}
     }
 
     /**
@@ -137,48 +163,48 @@ public class Grille implements API{
     * @return true si la case en question n'est pas vide et fait partie d'un groupe sinon return false
     */
     public boolean select(int l, int c) {
-        int counter = 0;
-        if(this.tab_char[l][c] == ' ') {
+    	int counter = 0;
+    	if(this.tab_char[l][c] == ' ') {
             return false; // Dans le cas ou la case est vide
         }
         // HAUT
         if (l>0) {
-            if (!this.selected[l-1][c] && this.tab_char[l][c] == this.tab_char[l-1][c]) {
-                selected[l-1][c] = true;
-                counter++;
-                selectAdjacents(l-1, c);
-            }
+        	if (!this.selected[l-1][c] && this.tab_char[l][c] == this.tab_char[l-1][c]) {
+        		selected[l-1][c] = true;
+        		counter++;
+        		selectAdjacents(l-1, c);
+        	}
         }
 
         // BAS
         if (l<9) {
-            if (!this.selected[l+1][c] && this.tab_char[l][c] == this.tab_char[l+1][c]) {
-                selected[l+1][c] = true;
-                counter++;
-                selectAdjacents(l+1, c);
-            }
+        	if (!this.selected[l+1][c] && this.tab_char[l][c] == this.tab_char[l+1][c]) {
+        		selected[l+1][c] = true;
+        		counter++;
+        		selectAdjacents(l+1, c);
+        	}
         }
 
         // GAUCHE
         if (c>0) {
-            if (!this.selected[l][c-1] && this.tab_char[l][c] == this.tab_char[l][c-1]) {
-                selected[l][c-1] = true;
-                counter++;
-                selectAdjacents(l, c-1);
-            }
+        	if (!this.selected[l][c-1] && this.tab_char[l][c] == this.tab_char[l][c-1]) {
+        		selected[l][c-1] = true;
+        		counter++;
+        		selectAdjacents(l, c-1);
+        	}
         }
 
         // DROITE
         if (c<14) {
-            if (!this.selected[l][c+1] && this.tab_char[l][c] == this.tab_char[l][c+1]) {
-                selected[l][c+1] = true;
-                counter++;
-                selectAdjacents(l, c+1);
-            }
+        	if (!this.selected[l][c+1] && this.tab_char[l][c] == this.tab_char[l][c+1]) {
+        		selected[l][c+1] = true;
+        		counter++;
+        		selectAdjacents(l, c+1);
+        	}
         }
         if (counter>0) {
-            this.label[l][c].setOpaque(true);
-            this.fenetre.repaint();
+        	this.label[l][c].setOpaque(true);
+        	this.fenetre.repaint();
             return true; // Dans le cas ou le groupe fait plus de 1 bloc
         } else {
             return false; // Dans le cas ou le groupe fait 1 bloc
@@ -191,49 +217,49 @@ public class Grille implements API{
     * celui en coordonnées (l,c)
     */
     public void selectAdjacents(int l, int c) {
-        this.label[l][c].setOpaque(true);
-        this.fenetre.repaint();
+    	this.label[l][c].setOpaque(true);
+    	this.fenetre.repaint();
         // HAUT
-        if (l>0) {
-            if (!this.selected[l-1][c] && this.tab_char[l][c] == this.tab_char[l-1][c]) {
-                selected[l-1][c] = true;
-                selectAdjacents(l-1, c);
-            }
-        }
+    	if (l>0) {
+    		if (!this.selected[l-1][c] && this.tab_char[l][c] == this.tab_char[l-1][c]) {
+    			selected[l-1][c] = true;
+    			selectAdjacents(l-1, c);
+    		}
+    	}
         // BAS
-        if (l<9) {
-            if (!this.selected[l+1][c] && this.tab_char[l][c] == this.tab_char[l+1][c]) {
-                selected[l+1][c] = true;
-                selectAdjacents(l+1, c);
-            }
-        }
+    	if (l<9) {
+    		if (!this.selected[l+1][c] && this.tab_char[l][c] == this.tab_char[l+1][c]) {
+    			selected[l+1][c] = true;
+    			selectAdjacents(l+1, c);
+    		}
+    	}
         // GAUCHE
-        if (c>0) {
-            if (!this.selected[l][c-1] && this.tab_char[l][c] == this.tab_char[l][c-1]) {
-                selected[l][c-1] = true;
-                selectAdjacents(l, c-1);
-            }
-        }
+    	if (c>0) {
+    		if (!this.selected[l][c-1] && this.tab_char[l][c] == this.tab_char[l][c-1]) {
+    			selected[l][c-1] = true;
+    			selectAdjacents(l, c-1);
+    		}
+    	}
         // DROITE
-        if (c<14) {
-            if (!this.selected[l][c+1] && this.tab_char[l][c] == this.tab_char[l][c+1]) {
-                selected[l][c+1] = true;
-                selectAdjacents(l, c+1);
-            }
-        }
+    	if (c<14) {
+    		if (!this.selected[l][c+1] && this.tab_char[l][c] == this.tab_char[l][c+1]) {
+    			selected[l][c+1] = true;
+    			selectAdjacents(l, c+1);
+    		}
+    	}
     }
 
     /**
     * Permet de déselectionner tous les blocs
     */
     public void unselectAll() {
-        for (int l = 0; l<10; l++) {
-            for (int c = 0; c<15; c++) {
-                this.selected[l][c] = false;
-                this.label[l][c].setOpaque(false);
-                this.fenetre.repaint();
-            }
-        }
+    	for (int l = 0; l<10; l++) {
+    		for (int c = 0; c<15; c++) {
+    			this.selected[l][c] = false;
+    			this.label[l][c].setOpaque(false);
+    			this.fenetre.repaint();
+    		}
+    	}
     }
 
     /**
@@ -241,40 +267,47 @@ public class Grille implements API{
     * l'ajoute au score du joueur et actualise le JLabel affichant le score
     */
     public void addPoints() {
-        int bsel = 0;
-        for (int l = 0; l<10; l++) {
-            for (int c = 0; c<15; c++) {
-                if (this.selected[l][c]) {
-                    bsel++;
-                }
-            }
-        }
-        if (bsel>1) {
-            this.nbpoints += (bsel-2)*(bsel-2);
-            this.printpoints.setText(Integer.toString(this.nbpoints));
-        }
+    	int bsel = 0;
+    	for (int l = 0; l<10; l++) {
+    		for (int c = 0; c<15; c++) {
+    			if (this.selected[l][c]) {
+    				bsel++;
+    			}
+    		}
+    	}
+
+    	if (bsel>1) {
+
+    		if(this.turn == this.maxturn) {
+    			this.maxturn++;
+    		}
+    		this.turn++;
+
+    		this.nbpoints += (bsel-2)*(bsel-2);
+    		this.printpoints.setText(Integer.toString(this.nbpoints));
+    	}
     }
 
     /**
     * @return le score du joueur
     */
     public int getPoints() {
-        return nbpoints;
+    	return nbpoints;
     }
 
     /**
     * Permet de supprimer les blocs sélectionnés
     */
     public void removeSelected() {
-        for (int l = 0; l<10; l++) {
-            for (int c = 0; c<15; c++) {
-                if (this.selected[l][c]) {
-                    this.tab_char[l][c] = ' ';
-                }
-            }
-        }
-        this.unselectAll();
-        this.refresh();
+    	for (int l = 0; l<10; l++) {
+    		for (int c = 0; c<15; c++) {
+    			if (this.selected[l][c]) {
+    				this.tab_char[l][c] = ' ';
+    			}
+    		}
+    	}
+    	this.unselectAll();
+    	this.refresh();
     }
 
     /**
@@ -284,10 +317,10 @@ public class Grille implements API{
     * @param to colonne qui va être remplacée par from
     */
     public void moveColumn(int from, int to) {
-        for (int l = 0; l<10; l++) {
-            tab_char[l][to] = tab_char[l][from];
-            tab_char[l][from] = ' ';
-        }
+    	for (int l = 0; l<10; l++) {
+    		tab_char[l][to] = tab_char[l][from];
+    		tab_char[l][from] = ' ';
+    	}
     }
 
     /**
@@ -302,30 +335,30 @@ public class Grille implements API{
     * elle même récursivement
     */
     public void checkColumns() {
-        int blocs;
-        int counter = 0;
-        int emptyColumn = 0;
-        int p = 1;
-        for (int c=0; c<15; c++) {
-            blocs = 0;
-            for (int l = 0; l<10; l++) {
-                if (this.tab_char[l][c] != ' ') {
-                    blocs++;
-                }
-            }
-            if (blocs == 0 && p==1) {
-                p = 0;
-                emptyColumn = c;
-            } else if (blocs != 0 && p==0) {
-                moveColumn(c, emptyColumn);
-                counter++;
-                p = 1;
-            }
-        }
-        if (counter>0) {
-            this.checkColumns();
-        }
-        this.refresh();
+    	int blocs;
+    	int counter = 0;
+    	int emptyColumn = 0;
+    	int p = 1;
+    	for (int c=0; c<15; c++) {
+    		blocs = 0;
+    		for (int l = 0; l<10; l++) {
+    			if (this.tab_char[l][c] != ' ') {
+    				blocs++;
+    			}
+    		}
+    		if (blocs == 0 && p==1) {
+    			p = 0;
+    			emptyColumn = c;
+    		} else if (blocs != 0 && p==0) {
+    			moveColumn(c, emptyColumn);
+    			counter++;
+    			p = 1;
+    		}
+    	}
+    	if (counter>0) {
+    		this.checkColumns();
+    	}
+    	this.refresh();
     }
 
     /**
@@ -334,20 +367,20 @@ public class Grille implements API{
     * et faire ca en boucle jusqu'a e qu'il n'y ai plus de modification à faire
     */
     public void checkFall() {
-        int counter = 0;
-        for (int l = 0; l<9; l++) {
-            for (int c = 0; c<15; c++) {
-                if (this.tab_char[l][c] != ' ' && this.tab_char[l+1][c] == ' ') {
-                    this.tab_char[l+1][c] = this.tab_char[l][c];
-                    this.tab_char[l][c] = ' ';
-                    counter++;
-                }
-            }
-        }
-        if (counter>0) {
-            this.checkFall();
-        }
-        this.refresh();
+    	int counter = 0;
+    	for (int l = 0; l<9; l++) {
+    		for (int c = 0; c<15; c++) {
+    			if (this.tab_char[l][c] != ' ' && this.tab_char[l+1][c] == ' ') {
+    				this.tab_char[l+1][c] = this.tab_char[l][c];
+    				this.tab_char[l][c] = ' ';
+    				counter++;
+    			}
+    		}
+    	}
+    	if (counter>0) {
+    		this.checkFall();
+    	}
+    	this.refresh();
     }
 
     /**
@@ -357,18 +390,18 @@ public class Grille implements API{
     * @return nombre de groupe restants
     */
     public int remainingGroups() {
-        int nbgroups = 0;
-        for (int l = 0; l<10; l++) {
-            for (int c = 0; c<15; c++) {
-                if (!this.selected[l][c]) {
-                    if (this.select(l, c)) {
-                        nbgroups++;
-                    }
-                }
-            }
-        }
-        this.unselectAll();
-        return nbgroups;
+    	int nbgroups = 0;
+    	for (int l = 0; l<10; l++) {
+    		for (int c = 0; c<15; c++) {
+    			if (!this.selected[l][c]) {
+    				if (this.select(l, c)) {
+    					nbgroups++;
+    				}
+    			}
+    		}
+    	}
+    	this.unselectAll();
+    	return nbgroups;
     }
 
 
@@ -377,95 +410,136 @@ public class Grille implements API{
 
 
     public char[][] getTabChar() {
-        return this.tab_char;
+    	return this.tab_char;
     }
     public int getLigne() {
-        return this.ligne;
+    	return this.ligne;
     }
     public int getColonne() {
-        return this.colonne;
+    	return this.colonne;
     }
 
     public void printGridBool() {
-        for(int i = 0; i <ligne;i++) {
-            for(int j = 0; j<colonne;j++) {
-                if(selected[i][j] == false) {
-                    System.out.print("F");
+    	for(int i = 0; i <ligne;i++) {
+    		for(int j = 0; j<colonne;j++) {
+    			if(selected[i][j] == false) {
+    				System.out.print("F");
 
-                } else {
-                    System.out.print("T");
+    			} else {
+    				System.out.print("T");
 
-                }
+    			}
 
-            }
-            System.out.println("");
+    		}
+    		System.out.println("");
 
-        } 
-        System.out.println("");
+    	} 
+    	System.out.println("");
 
     }
 
     public void printGrid() {
-        for(int i = 0; i <ligne;i++) {
-            for(int j = 0; j<colonne;j++) {
-                System.out.print(tab_char[i][j]);
+    	for(int i = 0; i <ligne;i++) {
+    		for(int j = 0; j<colonne;j++) {
+    			System.out.print(tab_char[i][j]);
 
-            }
-            System.out.println("");
+    		}
+    		System.out.println("");
 
-        } 
-        System.out.println("");
+    	} 
+    	System.out.println("");
 
     }
 
     /* Implements de l'API */
 
     public char[][] getGrille() {
-        return this.tab_char;
+    	return this.tab_char;
     }
 
     public void selectGroup(int x, int y) {
-        this.select(x, y);
-    }
+    	this.select(x, y);
+        if(this.modal.gametype != 0) {
 
-    public void destroyGroup() {
-
-        this.addPoints();
-        this.removeSelected();
-        this.checkFall();
-        this.checkColumns();
-        this.unselectAll();
-
-    }
-
-
-    public int getScore() {
-        int bsel = 0;
-        for (int l = 0; l<10; l++) {
-            for (int c = 0; c<15; c++) {
-                if (this.selected[l][c]) {
-                    bsel++;
-                }
-            }
-        }
-        if (bsel>1) {
-            return (bsel-2)*(bsel-2);
-        } else {
-            return 0;
-        }
-    }
-
-    public int getTotalScore() {
-        return this.nbpoints;
-    }
-
-    public boolean getFini() {
-        if(this.remainingGroups() == 0) {
-            return true;
-        } else {
-            return false;
-        }
+         try{Thread.sleep(300);} catch(InterruptedException e){}
      }
+
+ }
+
+ public void destroyGroup() {
+        if (this.modal.gametype == 0) { // si la partie est sans bot
+        	this.variantes.setGrilleWithTurn(this.turn, this.getTabChar());
+        	this.variantes.setPointTurn(this.turn, this.nbpoints);
+        }
+
+    	this.addPoints(); // incrémente this.turn
+    	this.removeSelected();
+    	this.checkFall();
+    	this.checkColumns();
+
+        if (this.remainingGroups() == 0) {
+            Fin fin = new Fin(this.modal, this.nbpoints);
+            this.fenetre.dispose();
+            if (this.modal.gametype == 0) { 
+
+                this.variantes.dispose();
+            }
+        } 
+
+        System.out.println(this.turn);
+
+        if (this.modal.gametype == 0) { // si la partie est sans bot
+          this.variantes.setGrilleWithTurn(this.turn, this.getTabChar());
+          this.variantes.setPointTurn(this.turn, this.nbpoints);
+      }
+      if(this.modal.gametype != 0) {
+         try{Thread.sleep(100);} catch(InterruptedException e){}    
+     }
+
+
+ }
+
+ public void setTabChar(char[][] newCharTab) {
+     this.tab_char = newCharTab;
+     this.fenetre.repaint();
+     this.refresh();
+ }
+
+ public void setScore(int score) {
+     this.nbpoints = score;
+     this.printpoints.setText(Integer.toString(this.nbpoints));
+
+     this.fenetre.repaint();
+     this.refresh();
+ }
+
+ public int getScore() {
+     int bsel = 0;
+     for (int l = 0; l<10; l++) {
+      for (int c = 0; c<15; c++) {
+       if (this.selected[l][c]) {
+        bsel++;
+    }
+}
+}
+if (bsel>1) {
+  return (bsel-2)*(bsel-2);
+} else {
+  return 0;
+}
+}
+
+public int getTotalScore() {
+ return this.nbpoints;
+}
+
+public boolean getFini() {
+ if(this.remainingGroups() == 0) {
+  return true;
+} else {
+  return false;
+}
+}
 
 }
 

@@ -135,16 +135,7 @@ public class BotAmeliore extends Bot {
 		return true;
 
 	}
-@Override
-	public void genererCoordX() {
-		this.genererCoord();
-		
-	}
-@Override
 
-	public void genererCoordY() {
-
-	}
 
 
 

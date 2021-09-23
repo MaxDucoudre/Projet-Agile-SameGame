@@ -6,7 +6,6 @@ public class BotGlouton extends Bot {
 
 	private boolean[][] selected;
 
-	private Grille grille;
 	
 
 
@@ -134,13 +133,10 @@ public class BotGlouton extends Bot {
         	}
         }
 
-        public void genererCoordX() {
+        public void genererCoord() {
         	this.setBiggestGroupCoord();
         }
 
-        public void genererCoordY() {
-        	this.setBiggestGroupCoord();
-
-        }
+ 
 
     }

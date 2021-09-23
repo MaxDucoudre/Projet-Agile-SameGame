@@ -32,6 +32,7 @@ public class MenuListener implements ActionListener {
 			this.modal.locY = this.menu.getLocation().y;
 			// Fermeture de la fenêtre de menu et ouverture de la fenêtre de jeu
 			this.menu.dispose();
+			this.modal.gametype = 0;
 	        Jeu game = new Jeu(this.modal);
 		}
 		//Ouvre les paramètres

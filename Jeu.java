@@ -15,6 +15,7 @@ public class Jeu extends JFrame {
     */
     public Jeu(Modele modal){
         this.modal = modal;
+
         
         // Initialisation de la fenetre
         this.setTitle("Same Game");

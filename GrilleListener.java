@@ -65,13 +65,10 @@ public class GrilleListener implements MouseListener {
 
 		Grille gr = this.grille;
 		System.out.println();
-		gr.printGridBool();
-		gr.addPoints();
-		gr.removeSelected();
-		gr.checkFall();
-		gr.checkColumns();
-		gr.printGrid();
-		System.out.println("--------------------------");
+		Component component = e.getComponent();
+
+			gr.destroyGroup();
+		
 
 		if (gr.remainingGroups() == 0) {
 			this.modal.locX = this.grille.fenetre.getLocation().x;

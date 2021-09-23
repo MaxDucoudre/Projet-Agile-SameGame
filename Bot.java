@@ -8,7 +8,6 @@ abstract class Bot implements BotInterface {
 	protected int coordX = 0;
 	protected int coordY = 0;
 
-
 	public Bot(String bot_name) {
 		this.bot_name = bot_name;
 
@@ -18,12 +17,12 @@ abstract class Bot implements BotInterface {
 		return bot_name;
 	}
 
+
 	public int getCol() {
 		char[][] grille = this.interfaceMJ.getGrille(); 
 
   		return grille[0].length;
 	}
-
 
 
 	public int getLine() {
@@ -46,29 +45,22 @@ abstract class Bot implements BotInterface {
 		}
 	}
 
-	public void genererCoordX() {
+	public void genererCoord() {
+		this.coordX = 0;
 		this.coordX = 0;
 	}
 
-	public void genererCoordY() {
-		this.coordX = 0;
-	}
+	
 
 	public void setAPI(API interface_moteur_jeu) {
 		this.interfaceMJ = interface_moteur_jeu;
 	}
 
 	public void jouerCoup() {
-
-			this.genererCoordX();
-			this.genererCoordY();
+			this.genererCoord();
 			this.interfaceMJ.selectGroup(this.coordX, this.coordY);
-			 try{Thread.sleep(300);} catch(InterruptedException e){}
 
 			this.interfaceMJ.destroyGroup();
-		     try{Thread.sleep(100);} catch(InterruptedException e){}
-
-		
 	}
 
 	public void startBot() {
