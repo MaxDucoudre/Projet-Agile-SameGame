@@ -26,7 +26,7 @@ Fin.class : Fin.java Grille.class Menu.class FinListener.class JPanelImage.class
 FinListener.class : FinListener.java 
 	${JC} ${JCFLAGS} FinListener.java
 
-Grille.class : Grille.java GrilleListener.class 
+Grille.class : Grille.java GrilleListener.class Bot.class BotAleatoire.class BotAmeliore.class BotGlouton.class BotInterface.class ThreadBot.class API.class Variantes.class
 	${JC} ${JCFLAGS} Grille.java
 
 GrilleListener.class : GrilleListener.java
@@ -48,8 +48,34 @@ JPanelImage.class : JPanelImage.java
 	${JC} ${JCFLAGS} JPanelImage.java	
 
 Modele.class : Modele.java
-	${JC} ${JCFLAGS} Modele.java	
+	${JC} ${JCFLAGS} Modele.java
 
+Bot.class : Bot.java Grille.java
+	${JC} ${JCFLAGS} Bot.java
+
+BotAleatoire.class : BotAleatoire.java
+	${JC} ${JCFLAGS} BotAleatoire.java
+
+BotAmeliore.class : BotAmeliore.java
+	${JC} ${JCFLAGS} BotAmeliore.java
+
+BotGlouton.class : BotGlouton.java
+	${JC} ${JCFLAGS} BotGlouton.java
+
+BotInterface.class : BotInterface.java
+	${JC} ${JCFLAGS} BotInterface.java
+
+ThreadBot.class : ThreadBot.java
+	${JC} ${JCFLAGS} ThreadBot.java
+
+API.class : API.java
+	${JC} ${JCFLAGS} API.java
+
+Variantes.class : Variantes.java VariantesListener.class
+	${JC} ${JCFLAGS} Variantes.java
+
+VariantesListener.class : VariantesListener.java
+	${JC} ${JCFLAGS} VariantesListener.java
 
 
 
